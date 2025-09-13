@@ -19,3 +19,7 @@ WhisperData‑AI turns plain language into powerful data transformations. Simply
   
 # Update requirements.txt
 - pip freeze > requirements.txt
+___
+
+## Run Uvicorn Server
+- uvicorn main:app --reload
