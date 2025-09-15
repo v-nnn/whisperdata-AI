@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request
+# FastAPI: receives requests and handles logic
+from fastapi import FastAPI, Request, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
@@ -13,9 +14,21 @@ app = FastAPI(title="AI Data Workflow Generator")
 templates = Jinja2Templates(directory="templates")
 
 
+# Decorator: when user visits "/", run the function below
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.post("/upload-csv")
+async def upload_function(file: UploadFile):
+    # assign contents as the variable to read the uploaded file to
+    # file is of class type UploadFile which has a method called .read(), used to read the contents of that file 
+    # await is to free the CPU for other computation for other users while the reading of that file is happening. For asycnhronous computation. 
+    contents = await file.read(file)
+    print(contents)
+
+
 
 # If you run python main.py directly from the terminal
     # This statement will run
