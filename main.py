@@ -1,4 +1,6 @@
 # FastAPI: receives requests and handles logic
+import csv
+import io
 from fastapi import FastAPI, Request, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -25,8 +27,38 @@ async def upload_function(file: UploadFile):
     # assign contents as the variable to read the uploaded file to
     # file is of class type UploadFile which has a method called .read(), used to read the contents of that file 
     # await is to free the CPU for other computation for other users while the reading of that file is happening. For asycnhronous computation. 
-    contents = await file.read(file)
-    print(contents)
+    content = await file.read() # get the file content as bytes
+    text_content = content.decode('utf-8') # convert bytes to string
+    csv_file = io.StringIO(text_content) # convert strings to csv
+    reader = csv.reader(csv_file)
+    
+    # Store the header seperately
+    header = next(reader)
+
+    # Initialize list for appending rows
+    data = []
+
+    # Intialize varible to count number if rows
+    row_count = 0
+
+    # append upto first 20 rows
+    for row in reader:
+        if row_count >= 20:
+            break
+        else:
+            data.append(row)
+            row_count += 1
+
+    # create dict variable
+    my_dict = {}
+
+    # store header in key called 'header'
+    my_dict["headers"] = header
+
+    # store data, list of lists of strings, as the value for the key 'rows'
+    my_dict["rows"] = data
+
+    return my_dict
 
 
 
