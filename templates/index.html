@@ -10,10 +10,10 @@
     </form>
 
     <h3>Upload your CSV file</h3>
-    <form id="submit" action="/upload-csv" method="post" enctype="multipart/form-data">
+    <form id="submit" action="/upload-csv" method="POST" enctype="multipart/form-data">
         <label for="file">Upload CSV File for AI Analysis</label>
         <input type="file" name="file" accept=".csv">
-        <button type="submit">Upload</button>
+        <button id="uploadButton" type="submit">Upload</button>
     </form>
     <script src="/scripts/main.js"></script> <!-- Reference javascript after all HTML elements have finished loading -->
 {% endblock %}
