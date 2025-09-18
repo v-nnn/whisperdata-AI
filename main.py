@@ -15,6 +15,9 @@ app = FastAPI(title="AI Data Workflow Generator")
 # This tells jinja that the html files are in the templates folder
 templates = Jinja2Templates(directory="templates")
 
+# This tells jinja that the javascript files are in the scripts folder
+scripts = Jinja2Templates(directory="scripts")
+
 
 # Decorator: when user visits "/", run the function below
 @app.get("/", response_class=HTMLResponse)
