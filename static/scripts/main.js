@@ -1,24 +1,29 @@
-console.log("JavaScript file loaded");
-
 // Select the form which initiates the "/upload-csv" endpoint
-const uploadButton = document.getElementById("submit")
+const uploadForm = document.getElementById("submit")
 
+const csvTable = document.getElementById("csvTable")
+csvTable.innerHTML = '';
 
 // for the form submission, when the mouse is clicked, intercept the default event 
-uploadButton.addEventListener('submit', function(submit) {
+uploadForm.addEventListener('submit', function(submit) {
     submit.preventDefault();
-
-    console.log("Form submission intercepted");
 
     // select the place in the form on index.html where the file is stored, before subission
     const file = document.getElementById("csvFile")
     // retrieve the file from the form
-    csvfile = file.files[0]
+    const csvfile = file.files[0]
+    if (!csvfile) return;
 
     // FormData mimics the submission of the file with encoding type/enctype="multipart/form-data" to the main.py UploadFile object parameter
     const formData = new FormData();
     // FastAPI in main.py expects the input parameter to be called "file"
     formData.append('file', csvfile)
+
+    // identify the div with id = "csvTable" in HTML. This is where the table will go.
+    const csvTable = document.getElementById("csvTable")
+    
+    // Clear the table immediately when upload starts
+    csvTable.innerHTML = '';
 
     // fetch() makes a request to an endpoint and fetches the response
     // sends the csvfile in the formData to the main.py upload-csv endpoint and retrieves the response (the file in JSON format)
@@ -33,21 +38,22 @@ uploadButton.addEventListener('submit', function(submit) {
     .then(response => response.json())
 
     .then(jsonData => {
-        // identify the div with id = "csvTable" in HTML. This is where the table will go.
-        const csvTable = document.getElementById("csvTable")
+        
+        // Clear again just to be absolutely sure
+        csvTable.innerHTML = '';
         
         // Create a table element dynamically within the HTML <table>
-        table = document.createElement("table")
+        const table = document.createElement("table")
+        
         // Create the header file 
-
         // access the headers of the returned JSON data from main.py "/upload-csv"
-        headers = jsonData["headers"]
+        const headers = jsonData["headers"]
 
-        theadElement = document.createElement("thead")
+        const theadElement = document.createElement("thead")
 
-        trElement = document.createElement("tr")
+        const trElement = document.createElement("tr")
 
-        for (element of headers)
+        for (const element of headers)
         {
             const thElement = document.createElement("th")
             // add element into th
@@ -64,39 +70,33 @@ uploadButton.addEventListener('submit', function(submit) {
         table.append(theadElement)
 
         // access the rows from the JSON from main.py "/upload-csv" endpoint
-        rows = jsonData["rows"]
+        const rows = jsonData["rows"]
 
-        tbodyElement = document.createElement("tbody")
+        const tbodyElement = document.createElement("tbody")
 
-        for (row of rows)
+        for (const row of rows)
         {
             // create a tr element 
-            trElement = document.createElement("tr")
+            const bodyRowElement = document.createElement("tr")
             
-            for (cell of row)
+            for (const cell of row)
             {
                 // create a td element
-                tdElement = document.createElement("td")
+                const tdElement = document.createElement("td")
                 
                 // add the row data content into the tdElement
                 tdElement.textContent = cell;
                 
                 // append each td element into the row
-                trElement.append(tdElement)
+                bodyRowElement.append(tdElement)
             }
 
             // append each row data into the table
-            tbodyElement.append(trElement)
+            tbodyElement.append(bodyRowElement)
         }
         table.append(tbodyElement)
 
-        csvTable.append(table)
+        // Replace the entire content instead of appending
+        csvTable.appendChild(table)
     })
 })
-
-
-// ✅ Intercept form submission
-// ❓ Get the file data from the form
-// ❓ Send it to your endpoint
-// ❓ Receive the JSON response
-// ❓ Create an HTML table
