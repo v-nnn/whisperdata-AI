@@ -16,14 +16,10 @@ app = FastAPI(title="whisperData: Natural Language Data Transformation")
 # app.mount(): tells FastAPI to serve files from a directory
 # "/scripts": serve the files from scripts folder when the the url path "/scripts" is executed
 # StaticFiles(directory="scripts"): tells FastAPI which folder to serve the files from
-app.mount("/static/scripts/", StaticFiles(directory="static/scripts"), name="scripts")
+app.mount("/static/scripts", StaticFiles(directory="static/scripts"), name="scripts")
 
 # This tells jinja that the html files are in the templates folder
 templates = Jinja2Templates(directory="templates")
-
-# This tells jinja that the javascript files are in the scripts folder
-scripts = Jinja2Templates(directory="scripts")
-
 
 # Decorator: when user visits "/", run the function below
 @app.get("/", response_class=HTMLResponse)
