@@ -2,15 +2,21 @@
 import csv
 import io
 from fastapi import FastAPI, Request, UploadFile
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
 
-# FastAPI() creates a new web application instance
+# FastAPI() cre`ates a new web application instance
 # This web server/app handles HTTP requests and also creates a router which handles the function to call based on the endpoint of the url "/account" or "/homepage" etc. 
 # Based on the endpoint and the corresponding function associated with that endpoint, we can route requests via GET/POST 
 # This web app instance is accessed and called through "app" variable 
-app = FastAPI(title="AI Data Workflow Generator")
+app = FastAPI(title="whisperData: Natural Language Data Transformation")
+
+# app.mount(): tells FastAPI to serve files from a directory
+# "/scripts": serve the files from scripts folder when the the url path "/scripts" is executed
+# StaticFiles(directory="scripts"): tells FastAPI which folder to serve the files from
+app.mount("/static/scripts/", StaticFiles(directory="static/scripts"), name="scripts")
 
 # This tells jinja that the html files are in the templates folder
 templates = Jinja2Templates(directory="templates")
@@ -26,6 +32,7 @@ async def read_root(request: Request):
 
 
 @app.post("/upload-csv")
+# UploadFile is the webstandard format for file uploads 
 async def upload_function(file: UploadFile):
     # assign contents as the variable to read the uploaded file to
     # file is of class type UploadFile which has a method called .read(), used to read the contents of that file 
