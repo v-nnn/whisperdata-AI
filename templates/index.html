@@ -2,10 +2,28 @@
 {% block body %}
     <h3>Upload your CSV file</h3>
     <form id="submit" action="/upload-csv" method="POST" enctype="multipart/form-data">
-        <label for="csv">UUpload CSV File for AI Analysis</label>
+        <label for="csv">Upload CSV File for AI Analysis</label>
         <input type="file" id="csvFile" name="file" accept=".csv">
         <button id="uploadButton" type="submit">Upload</button>
     </form>
+    
+    <div id="chatContainer" style="display: true;">
+    <h3>AI Data Transformation</h3>
+    <div style="display: flex; gap: 100px;">
+        <!-- Left side: Command input -->
+        <div style="flex: 1;">
+            <h4>Command:</h4>
+            <input type="text" id="commandInput" placeholder="Type your transformation command..." style="width: 95%; padding: 20px; margin-bottom: 10px;">
+            <button id="submitCommand" style="padding: 10px 20px;">Transform Data</button>
+        </div>
+         
+        <!-- Right side: Explanation display -->
+        <div style="flex: 1;">
+            <h4>AI Explanation:</h4>
+            <textarea id="explanationDisplay" readonly style="width: 95%; height: 34px; padding: 10px; background-color: #f5f5f5;" placeholder="AI explanation will appear here..."></textarea>
+        </div>
+    </div>
+
     <div id="csvTable"></div>
     <script src="/static/scripts/main.js"></script> <!-- Reference javascript after all HTML elements have finished loading -->
 {% endblock %}

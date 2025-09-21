@@ -100,3 +100,17 @@ uploadForm.addEventListener('submit', function(submit) {
         csvTable.appendChild(table)
     })
 })
+
+
+const submitCommand = document.getElementById("submitCommand")
+
+submitCommand.addEventListener('click', function()
+{
+    const commandInput = document.getElementById("commandInput")
+    const command = commandInput.value
+
+    fetch('/transform-data', {
+        method: 'POST',
+        body: command
+    })
+})
