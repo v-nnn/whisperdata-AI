@@ -9,6 +9,10 @@ from fastapi.templating import Jinja2Templates
 import uvicorn
 from openai import OpenAI
 import openAPIsecrets
+from pydantic import BaseModel
+
+class TransformRequest(BaseModel):
+    command: str
 
 all_rows = []
 
@@ -125,8 +129,10 @@ async def upload_function(file: UploadFile):
 
 
 @app.post("/transform-data")
-async def transform_data(command: str):
+async def transform_data(request: TransformRequest):
     global all_rows
+
+    command = request.command
     
     # Call AI
     aiResponse_data, aiResponse_explanation = askAI(command, all_rows)

@@ -99,6 +99,7 @@ uploadForm.addEventListener('submit', function(submit) {
         // Replace the entire content instead of appending
         csvTable.appendChild(table)
     })
+    document.getElementById("chatContainer").style.display = "block";
 })
 
 
@@ -106,11 +107,89 @@ const submitCommand = document.getElementById("submitCommand")
 
 submitCommand.addEventListener('click', function()
 {
+    // after id="submitCommand" button is clicked, start the red pulsating button for loading animation
+    submitCommand.classList.add("loading");
+    submitCommand.textContent = "Loading..."
+    submitCommand.disabled = true;
+
     const commandInput = document.getElementById("commandInput")
     const command = commandInput.value
 
     fetch('/transform-data', {
         method: 'POST',
-        body: command
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({command: command})
+    })
+
+    // receive the return from transform_data function as a JSON
+    .then(response => response.json())
+
+    .then(jsonData => {
+
+        csvTable.innerHTML = '';
+
+        const table = document.createElement("table")
+
+        const headers = jsonData["headers"]
+        const theadElement = document.createElement("thead")
+
+        const trElement = document.createElement("tr")
+
+        for (const element of headers)
+        {
+            const thElement = document.createElement("th")
+
+            thElement.textContent = element;
+
+            // append the cell of headers into the header row
+            trElement.append(thElement)
+        }
+        // append the header row into the thead 
+        theadElement.append(trElement)
+
+        // append the header into the table
+        table.append(theadElement)
+
+        // access the rows from the JSON from main.py "/upload-csv" endpoint
+        const rows = jsonData["rows"]
+        const tbodyElement = document.createElement("tbody")
+
+        for (const row of rows)
+        {
+            // create a tr element 
+            const bodyRowElement = document.createElement("tr")
+            
+            for (const cell of row)
+            {
+                // create a td element
+                const tdElement = document.createElement("td")
+                
+                // add the row data content into the tdElement
+                tdElement.textContent = cell;
+                
+                // append each td element into the row
+                bodyRowElement.append(tdElement)
+            }
+
+            // append each row data into the table
+            tbodyElement.append(bodyRowElement)
+        }
+        table.append(tbodyElement)
+
+        // Replace the entire content instead of appending
+        csvTable.appendChild(table)
+
+        // access the explanantion element from tranform_data return
+        const explanation = jsonData["explanation"]
+
+        const explanationDisplay = document.getElementById("explanationDisplay")
+        explanationDisplay.textContent = explanation;
+
+        // stop the button loading animation
+        submitCommand.classList.remove('loading');
+        submitCommand.textContent = "Transform Data"
+        submitCommand.disabled = false;
     })
 })
