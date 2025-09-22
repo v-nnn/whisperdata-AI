@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import anthropic
-import anthropicAPIsecrets
+
 from pydantic import BaseModel
 
 class TransformRequest(BaseModel):
@@ -23,7 +23,8 @@ all_rows = []
 app = FastAPI(title="whisperData: Natural Language Data Transformation")
 
 # hide the Anthropic key in secrets.py. A .gitignored python file
-client = anthropic.Anthropic(api_key=anthropicAPIsecrets.ANTHROPIC_API_KEY)
+client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+#client = anthropic.Anthropic(api_key=anthropicAPIsecret.ANTHROPIC_API_KEY)
 
 # Format the data from all_rows for the AI
 def formatDataforAI(all_rows):
@@ -56,7 +57,7 @@ def askAI(command, all_rows):
 
     response = client.messages.create(
         model="claude-3-5-haiku-latest",  # Cheaper option
-        #model="claude-3-5-sonnet-20250106",  # Better performance option
+        # model="claude-3-5-sonnet-20250106",  # Better performance option
         max_tokens=4000,
         messages=[
             {"role": "user", "content": prompt}

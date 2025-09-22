@@ -1,13 +1,25 @@
-# Ignore virtual environment
-venv/
+# Environment variables
+.env
+anthropicAPIsecret.py
 
-# Ignore Python cache
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
 
-# Ignore log files
-*.log
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Ignore OS-specific files
+# OS
 .DS_Store
 Thumbs.db
-anthropicAPIsecret.py
