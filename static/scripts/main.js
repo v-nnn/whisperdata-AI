@@ -193,3 +193,23 @@ submitCommand.addEventListener('click', function()
         submitCommand.disabled = false;
     })
 })
+
+const downloadButton = document.getElementById("downloadButton")
+
+downloadButton.addEventListener('click', function() {
+    fetch('/download-csv', {
+        method: 'GET'
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        // Create a download link and click it automatically
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'transformed_data.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    });
+});

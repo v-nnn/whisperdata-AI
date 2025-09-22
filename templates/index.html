@@ -12,6 +12,36 @@
         50% { opacity: 1; }
         100% { opacity: 0.6; }
     }
+
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    }
+
+    th {
+        background-color: #4CAF50;
+        color: white;
+        padding: 6px;
+        text-align: left;
+        border: 1px solid #ddd;
+    }
+
+    td {
+        padding: 4px 6px;
+        border: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
     </style>
 
     <h3>Upload your CSV file</h3>
@@ -29,6 +59,7 @@
             <h4>Command:</h4>
             <input type="text" id="commandInput" placeholder="Type your transformation command..." style="width: 95%; padding: 20px; margin-bottom: 10px;">
             <button id="submitCommand" style="padding: 10px 20px;">Transform Data</button>
+            <button id="downloadButton" style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer;">Download CSV</button>
         </div>
          
         <!-- Right side: Explanation display -->

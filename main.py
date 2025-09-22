@@ -2,13 +2,13 @@
 import csv
 import io
 import os
-from fastapi import FastAPI, Request, UploadFile
+from fastapi import FastAPI, Request, UploadFile, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 import uvicorn
-from openai import OpenAI
-import openAPIsecrets
+import anthropic
+import anthropicAPIsecrets
 from pydantic import BaseModel
 
 class TransformRequest(BaseModel):
@@ -22,8 +22,8 @@ all_rows = []
 # This web app instance is accessed and called through "app" variable 
 app = FastAPI(title="whisperData: Natural Language Data Transformation")
 
-# hide the open ai key in secrets.py. A .gitignored python file
-client = OpenAI(api_key=openAPIsecrets.OPENAI_API_KEY)
+# hide the Anthropic key in secrets.py. A .gitignored python file
+client = anthropic.Anthropic(api_key=anthropicAPIsecrets.ANTHROPIC_API_KEY)
 
 # Format the data from all_rows for the AI
 def formatDataforAI(all_rows):
@@ -42,38 +42,47 @@ def formatDataforAI(all_rows):
 
 # function to call the openAI
 def askAI(command, all_rows):
-
-    # format the data for the AI
-    formattedData = formatDataforAI(all_rows)
-
-    # Create the prompt
+    formatted_data = formatDataforAI(all_rows)
+    
     prompt = f"""Here is my CSV data:
-    {formattedData}
+    {formatted_data}
 
     User command: {command}
 
-    Please transform the data according to the command and return it in the same format above (Headers: ... followed by Data: ...),
-    then add an explanation starting with 'Explanation:' describing what you did."""
+    IMPORTANT: When sorting numerical columns, treat them as numbers not text. 
+    For example, sort 2, 10, 100 in that order, not 10, 100, 2.
 
-    response = client.chat.completions.create(
-        model = "gpt-3.5-turbo",
-        messages = [{"role": "user", "content": prompt}]
+    Please transform the data according to the command and return it in the same format above (Headers: ... followed by Data: ...), then add an explanation starting with 'Explanation:' describing what you did."""
+
+    response = client.messages.create(
+        model="claude-3-5-haiku-latest",  # Cheaper option
+        #model="claude-3-5-sonnet-20250106",  # Better performance option
+        max_tokens=4000,
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
     )
-
-    # store response in variable
-    ai_response = response.choices[0].message.content
-
-    # Parse the response
+    
+    ai_response = response.content[0].text
+    
+    # Parse the response (same as before)
     parts = ai_response.split("Explanation:")
     data_part = parts[0].strip()
-    # if there are more than 1 parts - both data and explanantion, then explanaation_part is the second index at 1st position
-    if len(parts) > 1:
-        explanation_part = parts[1].strip()
-    # if parts =< 1, then only data was returned, then explanation_part - what is printed in explanantion text box in HTML is the string "No explanation ..."
-    else:
-        explanation_part = "No explanation provided"
-
+    explanation_part = parts[1].strip() if len(parts) > 1 else "No explanation provided"
+    
     return data_part, explanation_part
+
+# Convert the all_rows data into a downloadable csv file
+def convert_to_csv(all_rows):
+    csv_lines = []
+    for row in all_rows:
+        # Join each row's items with commas
+        csv_line = ",".join(row)
+        csv_lines.append(csv_line)
+    
+    # Join all lines with newlines
+    csv_content = "\n".join(csv_lines)
+    return csv_content
 
 
 # app.mount(): tells FastAPI to serve files from a directory
@@ -136,6 +145,10 @@ async def transform_data(request: TransformRequest):
     
     # Call AI
     aiResponse_data, aiResponse_explanation = askAI(command, all_rows)
+
+    print("AI Response Data:")
+    print(aiResponse_data)
+    print("=" * 50)
     
     # Parse the AI response back into list format
     lines = aiResponse_data.strip().split('\n')
@@ -169,6 +182,25 @@ async def transform_data(request: TransformRequest):
     
     return response_dict
 
+
+@app.get("/download-csv")
+async def download_csv():
+    global all_rows
+
+    # Check if data exists
+    if not all_rows:
+        raise HTTPException(status_code=400, detail="No data available to download. Please upload a CSV file first.")
+    
+    # Convert to CSV format
+    csv_content = convert_to_csv(all_rows)
+    
+    # Return as downloadable file
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=transformed_data.csv",
+                 "Content-Type": "text/csv"}
+    )
 
 
 # If you run python main.py directly from the terminal
