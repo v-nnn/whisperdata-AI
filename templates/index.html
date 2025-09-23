@@ -1,10 +1,11 @@
 {% extends "layout.html" %}
 {% block body %}
    <style>
-        .loading {
-        background-color: #ff4444 !important;
-        animation: pulse 1.5s infinite;
-        pointer-events: none;
+    
+    .loading {
+    background-color: #ff4444 !important;
+    animation: pulse 1.5s infinite;
+    pointer-events: none;
     }
 
     @keyframes pulse {
@@ -45,9 +46,13 @@
 
     <h2>whisperData-AI 🤫</h2>
 
-    <h3>Upload your CSV file (upto 500 rows)</h3>
-    <h6>For sample CSV dataset <a href="https://drive.google.com/uc?id=1zO8ekHWx9U7mrbx_0Hoxxu6od7uxJqWw&export=download">click here</a></h6>
-    <h6>For more sample datasets <a href="http://www.datablist.com/learn/csv/download-sample-csv-files">click here</a></h6>
+    <div class="data-links">
+        <h6>Donwload sample Customer CSV dataset <a href="https://drive.google.com/uc?id=1zO8ekHWx9U7mrbx_0Hoxxu6od7uxJqWw&export=download" target="_blank">click here</a></h6>
+        <h6>For more sample datasets <a href="https://www.datablist.com/learn/csv/download-sample-csv-files" target="_blank">click here</a></h6>
+    </div>
+
+    <h3>Upload your CSV file below (upto 500 rows) ⤵️</h3>
+
     <form id="submit" action="/upload-csv" method="POST" enctype="multipart/form-data">
         <label for="csv">Upload CSV File for AI Analysis</label>
         <input type="file" id="csvFile" name="file" accept=".csv">

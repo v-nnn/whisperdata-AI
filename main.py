@@ -56,8 +56,8 @@ def askAI(command, all_rows):
     Please transform the data according to the command and return it in the same format above (Headers: ... followed by Data: ...), then add an explanation starting with 'Explanation:' describing what you did."""
 
     response = client.messages.create(
-        model="claude-3-5-haiku-latest",  # Cheaper option
-        # model="claude-3-5-sonnet-20250106",  # Better performance option
+        # model="claude-3-5-haiku-latest",  # Cheaper option
+        model="claude-3-5-sonnet-20250106",  # Better performance option
         max_tokens=4000,
         messages=[
             {"role": "user", "content": prompt}
