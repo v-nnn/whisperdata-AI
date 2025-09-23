@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import anthropic
-import anthropicAPIsecret
+# import anthropicAPIsecret
 
 from pydantic import BaseModel
 
@@ -24,8 +24,8 @@ all_rows = []
 app = FastAPI(title="whisperData: Natural Language Data Transformation")
 
 # hide the Anthropic key in secrets.py. A .gitignored python file
-# client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-client = anthropic.Anthropic(api_key=anthropicAPIsecret.ANTHROPIC_API_KEY)
+client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+#client = anthropic.Anthropic(api_key=anthropicAPIsecret.ANTHROPIC_API_KEY)
 
 # Format the data from all_rows for the AI
 def formatDataforAI(all_rows):
