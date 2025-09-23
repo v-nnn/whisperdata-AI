@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 import uvicorn
 import anthropic
+import anthropicAPIsecret
 
 from pydantic import BaseModel
 
@@ -23,8 +24,8 @@ all_rows = []
 app = FastAPI(title="whisperData: Natural Language Data Transformation")
 
 # hide the Anthropic key in secrets.py. A .gitignored python file
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-#client = anthropic.Anthropic(api_key=anthropicAPIsecret.ANTHROPIC_API_KEY)
+# client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = anthropic.Anthropic(api_key=anthropicAPIsecret.ANTHROPIC_API_KEY)
 
 # Format the data from all_rows for the AI
 def formatDataforAI(all_rows):
@@ -50,15 +51,63 @@ def askAI(command, all_rows):
 
     User command: {command}
 
-    IMPORTANT: When sorting numerical columns, treat them as numbers not text. 
-    For example, sort 2, 10, 100 in that order, not 10, 100, 2.
+    INSTRUCTIONS:
+    1. First, determine if this is a QUESTION about the data or a TRANSFORMATION command:
+    - QUESTIONS: "How many rows?", "What's the average?", "Show me statistics", "What columns exist?"
+    - TRANSFORMATIONS: "Sort by age", "Filter rows where...", "Add a column", "Remove duplicates"
 
-    Please transform the data according to the command and return it in the same format above (Headers: ... followed by Data: ...), then add an explanation starting with 'Explanation:' describing what you did."""
+    2. If it's a QUESTION:
+    - Return the ORIGINAL data unchanged
+    - Answer the question in the explanation
+
+    3. If it's a TRANSFORMATION:
+    - Apply the transformation
+    - When sorting numerical columns, treat them as numbers (2, 10, 100 not 10, 100, 2)
+    - Return the modified data
+
+    REQUIRED OUTPUT FORMAT (follow EXACTLY):
+    Headers: [comma-separated header names]
+    Data:
+    [each row on new line, comma-separated values]
+
+    Explanation: [Your answer or description of what you did]
+
+    CRITICAL RULES:
+    - Headers line must start with exactly "Headers: "
+    - Data section must start with exactly "Data:"
+    - Each data row must be comma-separated values only
+    - Explanation must start with exactly "Explanation: "
+    - If question about data, return original data unchanged
+    - Never add extra formatting, quotes, or markdown
+    - Never truncate data unless specifically asked
+
+    EXAMPLES:
+
+    Example 1 (Question):
+    User: "How many customers are from New York?"
+    Headers: Name, City, Age
+    Data:
+    John, NYC, 25
+    Jane, Boston, 30
+    Bob, NYC, 28
+    Explanation: There are 2 customers from New York (NYC): John and Bob.
+
+    Example 2 (Transformation):
+    User: "Sort by age ascending"
+    Headers: Name, City, Age
+    Data:
+    John, NYC, 25
+    Bob, NYC, 28
+    Jane, Boston, 30
+    Explanation: Sorted the data by age in ascending order (25, 28, 30).
+
+    Now process the user command above following these rules exactly."""
 
     response = client.messages.create(
-        # model="claude-3-5-haiku-latest",  # Cheaper option
-        model="claude-3-5-sonnet-20250106",  # Better performance option
-        max_tokens=4000,
+        #model="claude-sonnet-4-20250514",
+        model="claude-3-7-sonnet-20250219",  
+        #model="claude-3-5-haiku-20241022",  
+        max_tokens=2000,
         messages=[
             {"role": "user", "content": prompt}
         ]
@@ -146,10 +195,6 @@ async def transform_data(request: TransformRequest):
     
     # Call AI
     aiResponse_data, aiResponse_explanation = askAI(command, all_rows)
-
-    print("AI Response Data:")
-    print(aiResponse_data)
-    print("=" * 50)
     
     # Parse the AI response back into list format
     lines = aiResponse_data.strip().split('\n')
